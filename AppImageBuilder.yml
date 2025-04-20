@@ -12,10 +12,8 @@ app_info:
 AppDir:
   path: ./AppDir                             # where files will be assembled
   files:
-    - source: target/release/slot_machine     # your compiled binary
-      destination: usr/bin/slot_machine
-    - source: assets/slotmachine.png          # your icon
-      destination: usr/share/icons/hicolor/256x256/apps/slotmachine.png
+    target/release/slot_machine : usr/bin/slot_machine
+    assets/slotmachine.png : usr/share/icons/hicolor/256x256/apps/slotmachine.png
 
 # ─── Optionally include system libraries ─────────────────────────────────
 apt:
