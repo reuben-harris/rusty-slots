@@ -1,0 +1,95 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'          # triggers on tags like v1.0.0
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true        # sets stable as default :contentReference[oaicite:1]{index=1}
+
+      - name: Build (release)
+        run: cargo build --release
+
+      # ─────────────────────────────────────────────────────────────────────
+      # Linux: package AppImage
+      - name: Build AppImage
+        if: matrix.os == 'ubuntu-latest'
+        uses: AppImageCrafters/build-appimage@master
+        with:
+          recipe: "./AppImageBuilder.yml"   # your recipe in repo :contentReference[oaicite:2]{index=2}
+
+      - name: Upload Linux AppImage
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: appimage
+          path: '*.AppImage'
+
+      # ─────────────────────────────────────────────────────────────────────
+      # Windows: zip the .exe
+      - name: Package Windows EXE
+        if: matrix.os == 'windows-latest'
+        run: |
+          Compress-Archive -Path target\\release\\slot_machine.exe \
+                           -DestinationPath slot_machine_windows.zip
+
+      - name: Upload Windows ZIP
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: slot_machine_windows.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Linux AppImage
+        uses: actions/download-artifact@v4
+        with:
+          name: appimage
+
+      - name: Download Windows ZIP
+        uses: actions/download-artifact@v4
+        with:
+          name: windows
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: Upload AppImage to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: '*.AppImage'
+          asset_name: slot_machine.AppImage
+          asset_content_type: application/x-executable
+
+      - name: Upload Windows ZIP to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: slot_machine_windows.zip
+          asset_name: slot_machine_windows.zip
+          asset_content_type: application/zip
