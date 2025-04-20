@@ -1,38 +1,38 @@
 version: 1
 
 app_info:
-  id: org.example.slotmachine
-  name: Slot Machine
-  icon: slotmachine
-  version: "1.0.0"
-  exec: usr/bin/slot_machine
-  exec_args: $@
+  id:         org.example.slotmachine
+  name:       Slot Machine
+  icon:       slotmachine
+  version:    "1.0.0"
+  exec:       usr/bin/slot_machine
+  exec_args:  $@
 
-# ─── Define what to bundle ───────────────────────────────────────────────
+# ─── Copy your built artifacts into AppDir ────────────────────────────────
+script:
+  # create target directories
+  - mkdir -p AppDir/usr/bin AppDir/usr/share/icons/hicolor/256x256/apps
+  # install the slot_machine binary (mode 755)
+  - install -Dm755 target/release/slot_machine AppDir/usr/bin/slot_machine
+  # install the icon (mode 644)
+  - install -Dm644 assets/icon.png AppDir/usr/share/icons/hicolor/256x256/apps/icon.png
+
 AppDir:
-  path: ./AppDir                             # where files will be assembled
-  files:
-    target/release/slot_machine: usr/bin/slot_machine
-    assets/icon.png: usr/share/icons/hicolor/256x256/apps/icon.png
+  path: ./AppDir
 
-# ─── Optionally include system libraries ─────────────────────────────────
-apt:
-  arch: amd64
-  sources:
-    - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal main'
-      key_url: 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3B4FE6ACC0B21F32'
-  include:
-    - libfreetype6
-    - libexpat1
+  # pull in system libraries via apt
+  apt:
+    arch: amd64
+    include:
+      - libfreetype6
+      - libexpat1
 
-# ─── Desktop integration for menus/launchers ─────────────────────────────
 desktop_integration:
   desktop_file: slot_machine.desktop
-  icon: slotmachine
-  categories: ["Game"]
+  icon:         slotmachine
+  categories:   ["Game"]
 
-# ─── Metadata for the AppImage itself ────────────────────────────────────
 AppImage:
-  arch: x86_64
+  arch:               x86_64
   update-information: None
-  sign-key: None
+  sign-key:           None
