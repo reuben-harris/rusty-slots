@@ -45,17 +45,12 @@ jobs:
 
       # ─────────────────────────────────────────────────────────────────────
       # Windows: zip the .exe
-      - name: Package Windows EXE
-        if: matrix.os == 'windows-latest'
-        run: |
-          Compress-Archive -Path target\release\slot_machine_gui.exe -DestinationPath slot_machine_windows.zip
-
-      - name: Upload Windows ZIP
+      - name: Upload Windows EXE
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: windows
-          path: slot_machine_windows.zip
+          name: windows-exe
+          path: target/release/slot_machine_gui.exe
 
   release:
     needs: build
@@ -71,10 +66,10 @@ jobs:
       #   with:
       #     name: appimage
 
-      - name: Download Windows ZIP
+      - name: Download Windows EXE
         uses: actions/download-artifact@v4
         with:
-          name: windows
+          name: windows-exe
 
       # - name: Create GitHub Release
       #   uses: elgohr/Github-Release-Action@v5
@@ -102,12 +97,12 @@ jobs:
       #     asset_name: slot_machine.AppImage
       #     asset_content_type: application/x-executable
 
-      - name: Upload Windows ZIP to Release
+      - name: Upload Windows EXE to Release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: slot_machine_windows.zip
-          asset_name: slot_machine_windows.zip
-          asset_content_type: application/zip
+          asset_path: slot_machine_gui.exe
+          asset_name: slot_machine_gui.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
