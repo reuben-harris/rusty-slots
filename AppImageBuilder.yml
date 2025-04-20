@@ -1,38 +1,34 @@
 version: 1
 
 app_info:
-  id:         org.example.slotmachine
-  name:       Slot Machine
-  icon:       slotmachine
-  version:    "1.0.0"
-  exec:       usr/bin/slot_machine
-  exec_args:  $@
+  id: org.example.rustyslots
+  name: Rusty Slots
+  icon: slotmachine
+  version: "1.0.0"
+  exec: usr/bin/slot_machine
+  exec_args: $@
 
-# ─── Copy your built artifacts into AppDir ────────────────────────────────
+# ─── Populate the AppDir via shell commands ─────────────────────────────
 script:
-  # create target directories
-  - mkdir -p AppDir/usr/bin AppDir/usr/share/icons/hicolor/256x256/apps
-  # install the slot_machine binary (mode 755)
+  # clean up any old AppDir
+  - rm -rf AppDir
+  # make the directories we need
+  - mkdir -p AppDir/usr/bin
+  # copy your release binary
   - install -Dm755 target/release/slot_machine AppDir/usr/bin/slot_machine
-  # install the icon (mode 644)
-  - install -Dm644 assets/icon.png AppDir/usr/share/icons/hicolor/256x256/apps/icon.png
+  # (optional) if you have an icon, uncomment next two lines and ensure the file exists:
+  # - mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+  # - install -Dm644 assets/icon.png AppDir/usr/share/icons/hicolor/256x256/apps/slotmachine.png
 
 AppDir:
   path: ./AppDir
 
-  # pull in system libraries via apt
-  apt:
-    arch: amd64
-    include:
-      - libfreetype6
-      - libexpat1
-
 desktop_integration:
   desktop_file: slot_machine.desktop
-  icon:         slotmachine
-  categories:   ["Game"]
+  icon: slotmachine
+  categories: ["Game"]
 
 AppImage:
-  arch:               x86_64
+  arch: x86_64
   update-information: None
-  sign-key:           None
+  sign-key: None
