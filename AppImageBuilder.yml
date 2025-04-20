@@ -1,0 +1,40 @@
+version: 1
+
+app_info:
+  id: org.example.slotmachine
+  name: Slot Machine
+  icon: slotmachine
+  version: "1.0.0"
+  exec: usr/bin/slot_machine
+  exec_args: $@
+
+# ─── Define what to bundle ───────────────────────────────────────────────
+AppDir:
+  path: ./AppDir                             # where files will be assembled
+  files:
+    - source: target/release/slot_machine     # your compiled binary
+      destination: usr/bin/slot_machine
+    - source: assets/slotmachine.png          # your icon
+      destination: usr/share/icons/hicolor/256x256/apps/slotmachine.png
+
+# ─── Optionally include system libraries ─────────────────────────────────
+apt:
+  arch: amd64
+  sources:
+    - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal main'
+      key_url: 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3B4FE6ACC0B21F32'
+  include:
+    - libfreetype6
+    - libexpat1
+
+# ─── Desktop integration for menus/launchers ─────────────────────────────
+desktop_integration:
+  desktop_file: slot_machine.desktop
+  icon: slotmachine
+  categories: ["Game"]
+
+# ─── Metadata for the AppImage itself ────────────────────────────────────
+AppImage:
+  arch: x86_64
+  update-information: None
+  sign-key: None
